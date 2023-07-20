@@ -1,6 +1,6 @@
 defmodule DomHelpers.SelectorsTest do
   @moduledoc false
-  use ExUnit.Case
+  use DomHelpers.Case
 
   import DomHelpers.Selectors
 

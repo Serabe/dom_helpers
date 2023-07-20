@@ -1,18 +1,11 @@
 defmodule DomHelpers do
   @moduledoc """
-  Documentation for `DomHelpers`.
+  Just `use DomHelpers` to import all the methods.
   """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> DomHelpers.hello()
-      :world
-
-  """
-  def hello do
-    :world
+  defmacro __using__(_opts) do
+    quote do
+      import DomHelpers.Selectors
+    end
   end
 end

@@ -9,7 +9,8 @@ defmodule DomHelpers.MixProject do
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
-      license: "MIT"
+      license: "MIT",
+      package: package()
     ]
   end
 

@@ -111,7 +111,7 @@ defmodule DomHelpers.Selectors do
   def with_class(selector, class), do: "#{selector}.#{class}"
 
   @doc """
-  Adds all the classes to the given selector.
+  Checks if the selector contains the given classes.
 
   ## Examples
 
@@ -123,6 +123,28 @@ defmodule DomHelpers.Selectors do
   """
   def with_classes(selector, classes) when is_list(classes) do
     Enum.reduce(classes, selector, &with_class(&2, &1))
+  end
+
+  @doc """
+  Modifies the selector to check it does not have the given class.
+
+  ## Examples
+
+  iex> without_class("div", "hidden")
+  ~s/div:not(.hidden)/
+  """
+  def without_class(selector, class), do: "#{selector}:not(.#{class})"
+
+  @doc """
+  Modifies the selector to check it does not contain the given classes.
+
+  ## Examples
+
+  iex> without_classes("div", ~w(flex mb-4))
+  ~s/div:not(.flex):not(.mb-4)/
+  """
+  def without_classes(selector, classes) when is_list(classes) do
+    Enum.reduce(classes, selector, &without_class(&2, &1))
   end
 
   defp get_attr_value({_matcher, value}), do: value

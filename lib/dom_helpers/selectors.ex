@@ -5,6 +5,13 @@ defmodule DomHelpers.Selectors do
 
   @doc """
   Complements the selector by checking that the attribute is present.
+
+  ## Examples
+
+  ```
+  iex> with_attr("input", "checked")
+  ~s/input["checked"]/
+  ```
   """
   def with_attr(selector, attr), do: "#{selector}[\"#{attr}\"]"
 
@@ -25,6 +32,7 @@ defmodule DomHelpers.Selectors do
 
   ## Examples
 
+  ```
   iex> with_attr("input", "type", "text")
   ~s/input["type"="text"]/
 
@@ -42,7 +50,7 @@ defmodule DomHelpers.Selectors do
 
   iex> with_attr("main", "lang", {:subcode, "es"})
   ~s/main["lang"|="es"]/
-
+  ```
   """
   def with_attr(selector, attr, value),
     do: "#{selector}[\"#{attr}\"#{matcher(value)}\"#{get_attr_value(value)}\"]"
@@ -52,8 +60,10 @@ defmodule DomHelpers.Selectors do
 
   ## Examples
 
+  ```
   iex> without_attr("input", "checked")
   ~s/input:not(["checked"])/
+  ```
   """
   def without_attr(selector, attr), do: "#{selector}:not(#{with_attr("", attr)})"
 
@@ -70,11 +80,13 @@ defmodule DomHelpers.Selectors do
 
   ## Examples
 
+  ```
   iex> with_attrs("input", type: "checkbox", checked: true)
   ~s/input["type"="checkbox"]["checked"]/
 
   iex> with_attrs("input", name: false, class: {:contains_word, "hola"}, "data-test": false)
   ~s/input["class"~="hola"]:not(["name"]):not(["data-test"])/
+  ```
   """
   def with_attrs(selector, attrs) when is_map(attrs) or is_list(attrs) do
     {without_attr, with_attr} =
@@ -102,11 +114,13 @@ defmodule DomHelpers.Selectors do
 
   ## Examples
 
+  ```
   iex> with_class("div", "hidden")
   "div.hidden"
 
   iex> with_class("span", "flex")
   "span.flex"
+  ```
   """
   def with_class(selector, class), do: "#{selector}.#{class}"
 
@@ -115,11 +129,13 @@ defmodule DomHelpers.Selectors do
 
   ## Examples
 
+  ```
   iex> with_classes("div", ~w(flex mb-4))
   "div.flex.mb-4"
 
   iex> with_classes("span", ~w(p-1 m-2))
   "span.p-1.m-2"
+  ```
   """
   def with_classes(selector, classes) when is_list(classes) do
     Enum.reduce(classes, selector, &with_class(&2, &1))
@@ -130,8 +146,10 @@ defmodule DomHelpers.Selectors do
 
   ## Examples
 
+  ```
   iex> without_class("div", "hidden")
   ~s/div:not(.hidden)/
+  ```
   """
   def without_class(selector, class), do: "#{selector}:not(.#{class})"
 
@@ -140,12 +158,29 @@ defmodule DomHelpers.Selectors do
 
   ## Examples
 
+  ```
   iex> without_classes("div", ~w(flex mb-4))
   ~s/div:not(.flex):not(.mb-4)/
+  ```
   """
   def without_classes(selector, classes) when is_list(classes) do
     Enum.reduce(classes, selector, &without_class(&2, &1))
   end
+
+  @doc """
+  Adds the given id to the selector passed in.
+
+  ## Examples
+
+  ```
+  iex> with_id("main", "main_content")
+  "main#main_content"
+
+  iex> with_id("div", "modal")
+  "div#modal"
+  ```
+  """
+  def with_id(selector, id), do: "#{selector}##{id}"
 
   defp get_attr_value({_matcher, value}), do: value
   defp get_attr_value(value), do: value

@@ -1,10 +1,12 @@
 defmodule DomHelpers.MixProject do
   use Mix.Project
 
+  @version "0.1.1"
+
   def project do
     [
       app: :dom_helpers,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),

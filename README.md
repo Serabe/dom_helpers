@@ -10,7 +10,7 @@ by adding `dom_helpers` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:dom_helpers, "~> 0.1.0"}
+    {:dom_helpers, "~> 0.1.0", only: [:dev, :test]}
   ]
 end
 ```

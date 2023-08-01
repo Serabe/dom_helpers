@@ -2,6 +2,8 @@ defmodule DomHelpers.SelectorsTest do
   @moduledoc false
   use DomHelpers.Case
 
+  doctest DomHelpers.Selectors
+
   import DomHelpers.Selectors
 
   describe "with_attr" do
@@ -82,13 +84,26 @@ defmodule DomHelpers.SelectorsTest do
 
       test "with a several attributes, checks everything" do
         assert ~s/input["class"~="hola"]["type"="hidden"]/ ==
-                 with_attrs("input", as(%{"class" => {:contains_word, "hola"}, "type" => "hidden"}, @style))
+                 with_attrs(
+                   "input",
+                   as(%{"class" => {:contains_word, "hola"}, "type" => "hidden"}, @style)
+                 )
       end
 
       test "if there are any attributes with false and some with other values, the ones with false are at the end of the selector" do
         assert ~s/input["class"~="hola"]["type"="hidden"]:not(["data-test"]):not(["name"])/ ==
-                 with_attrs("input", as(%{"name" => false, "class" => {:contains_word, "hola"}, "data-test" => false, "type" => "hidden"}, @style))
-
+                 with_attrs(
+                   "input",
+                   as(
+                     %{
+                       "name" => false,
+                       "class" => {:contains_word, "hola"},
+                       "data-test" => false,
+                       "type" => "hidden"
+                     },
+                     @style
+                   )
+                 )
       end
     end
   end
@@ -96,10 +111,4 @@ defmodule DomHelpers.SelectorsTest do
   defp as(:keyword), do: []
   defp as(:map), do: %{}
   defp as(enum, style), do: Enum.into(enum, as(style))
-
-  describe "without_attr/2" do
-    test "returns a selector that checks the given one has not given attr" do
-      assert ~s/input:not(["checked"])/ == without_attr("input", "checked")
-    end
-  end
 end

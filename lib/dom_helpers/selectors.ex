@@ -22,12 +22,38 @@ defmodule DomHelpers.Selectors do
   - `:subcode` for `|=`.
 
   For more information on these selectors, please check [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors).
+
+  ## Examples
+
+  iex> with_attr("input", "type", "text")
+  ~s/input["type"="text"]/
+
+  iex> with_attr("input", "class", {:contains_word, "hidden"})
+  ~s/input["class"~="hidden"]/
+
+  iex> with_attr("input", "type", {:equal, "text"})
+  ~s/input["type"="text"]/
+
+  iex> with_attr("div", "data-test", {:ends_with, "editor"})
+  ~s/div["data-test"$="editor"]/
+
+  iex> with_attr("div", "data-test", {:starts_with, "editor"})
+  ~s/div["data-test"^="editor"]/
+
+  iex> with_attr("main", "lang", {:subcode, "es"})
+  ~s/main["lang"|="es"]/
+
   """
   def with_attr(selector, attr, value),
     do: "#{selector}[\"#{attr}\"#{matcher(value)}\"#{get_attr_value(value)}\"]"
 
   @doc """
   Complements the selector by checking that it does not have the given attribute.
+
+  ## Examples
+
+  iex> without_attr("input", "checked")
+  ~s/input:not(["checked"])/
   """
   def without_attr(selector, attr), do: "#{selector}:not(#{with_attr("", attr)})"
 
@@ -41,6 +67,14 @@ defmodule DomHelpers.Selectors do
   - `false` for checking that the attribute is not present.
   - Any other value would be passed directly as attribute value to `with_attr/3`. Check
     its documentation for all the options.
+
+  ## Examples
+
+  iex> with_attrs("input", type: "checkbox", checked: true)
+  ~s/input["type"="checkbox"]["checked"]/
+
+  iex> with_attrs("input", name: false, class: {:contains_word, "hola"}, "data-test": false)
+  ~s/input["class"~="hola"]:not(["name"]):not(["data-test"])/
   """
   def with_attrs(selector, attrs) when is_map(attrs) or is_list(attrs) do
     {without_attr, with_attr} =
@@ -61,6 +95,34 @@ defmodule DomHelpers.Selectors do
     Enum.reduce(without_attr, selector_with_valid_attrs, fn {attr, false}, selector ->
       without_attr(selector, attr)
     end)
+  end
+
+  @doc """
+  Add the class selector to the given one.
+
+  ## Examples
+
+  iex> with_class("div", "hidden")
+  "div.hidden"
+
+  iex> with_class("span", "flex")
+  "span.flex"
+  """
+  def with_class(selector, class), do: "#{selector}.#{class}"
+
+  @doc """
+  Adds all the classes to the given selector.
+
+  ## Examples
+
+  iex> with_classes("div", ~w(flex mb-4))
+  "div.flex.mb-4"
+
+  iex> with_classes("span", ~w(p-1 m-2))
+  "span.p-1.m-2"
+  """
+  def with_classes(selector, classes) when is_list(classes) do
+    Enum.reduce(classes, selector, &with_class(&2, &1))
   end
 
   defp get_attr_value({_matcher, value}), do: value

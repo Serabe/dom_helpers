@@ -8,7 +8,18 @@ defmodule DomHelpers.MixProject do
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
-      deps: deps()
+      deps: deps(),
+      license: "MIT"
+    ]
+  end
+
+  def package do
+    [
+      maintainers: ["Sergio Arbeo"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/Serabe/dom_helpers"},
+      files: ~w(lib LICENSE.txt mix.exs README.md),
+      description: "A collection of helpers to work with DOM in tests."
     ]
   end
 

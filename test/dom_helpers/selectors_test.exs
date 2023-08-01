@@ -57,4 +57,49 @@ defmodule DomHelpers.SelectorsTest do
                with_attr("div", "data-test", {:contains, "something"})
     end
   end
+
+  for style <- ~w(map keyword)a do
+    @style style
+    describe "with_attrs/2 #{@style}" do
+      test "with false, checks it does not contain the attr" do
+        assert ~s/input:not(["checked"])/ ==
+                 with_attrs("input", as(%{"checked" => false}, @style))
+      end
+
+      test "with true, checks that attribute is there" do
+        assert ~s/input["checked"]/ == with_attrs("input", as(%{"checked" => true}, @style))
+      end
+
+      test "with just a value, check the attribute has that value" do
+        assert ~s/input["type"="hidden"]/ ==
+                 with_attrs("input", as(%{"type" => "hidden"}, @style))
+      end
+
+      test "with a complex value, behaves like with_attr/3" do
+        assert ~s/input["class"~="hola"]/ ==
+                 with_attrs("input", as(%{"class" => {:contains_word, "hola"}}, @style))
+      end
+
+      test "with a several attributes, checks everything" do
+        assert ~s/input["class"~="hola"]["type"="hidden"]/ ==
+                 with_attrs("input", as(%{"class" => {:contains_word, "hola"}, "type" => "hidden"}, @style))
+      end
+
+      test "if there are any attributes with false and some with other values, the ones with false are at the end of the selector" do
+        assert ~s/input["class"~="hola"]["type"="hidden"]:not(["data-test"]):not(["name"])/ ==
+                 with_attrs("input", as(%{"name" => false, "class" => {:contains_word, "hola"}, "data-test" => false, "type" => "hidden"}, @style))
+
+      end
+    end
+  end
+
+  defp as(:keyword), do: []
+  defp as(:map), do: %{}
+  defp as(enum, style), do: Enum.into(enum, as(style))
+
+  describe "without_attr/2" do
+    test "returns a selector that checks the given one has not given attr" do
+      assert ~s/input:not(["checked"])/ == without_attr("input", "checked")
+    end
+  end
 end

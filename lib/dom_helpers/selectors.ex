@@ -26,6 +26,43 @@ defmodule DomHelpers.Selectors do
   def with_attr(selector, attr, value),
     do: "#{selector}[\"#{attr}\"#{matcher(value)}\"#{get_attr_value(value)}\"]"
 
+  @doc """
+  Complements the selector by checking that it does not have the given attribute.
+  """
+  def without_attr(selector, attr), do: "#{selector}:not(#{with_attr("", attr)})"
+
+  @doc """
+  Like `with_attr/2` but several attributes can be passed at once.
+
+  Attributes can be passed as a map or keywords. In both cases, keys are the names
+  of the attributes, while the keys can be:
+
+  - `true` for just checking that the attribute is present.
+  - `false` for checking that the attribute is not present.
+  - Any other value would be passed directly as attribute value to `with_attr/3`. Check
+    its documentation for all the options.
+  """
+  def with_attrs(selector, attrs) when is_map(attrs) or is_list(attrs) do
+    {without_attr, with_attr} =
+      Enum.split_with(attrs, fn
+        {_attr, false} -> true
+        _other -> false
+      end)
+
+    selector_with_valid_attrs =
+      Enum.reduce(with_attr, selector, fn
+        {attr, true}, selector ->
+          with_attr(selector, attr)
+
+        {attr, value}, selector ->
+          with_attr(selector, attr, value)
+      end)
+
+    Enum.reduce(without_attr, selector_with_valid_attrs, fn {attr, false}, selector ->
+      without_attr(selector, attr)
+    end)
+  end
+
   defp get_attr_value({_matcher, value}), do: value
   defp get_attr_value(value), do: value
 

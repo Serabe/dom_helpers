@@ -68,6 +68,34 @@ defmodule DomHelpers.Selectors do
   def without_attr(selector, attr), do: "#{selector}:not(#{with_attr("", attr)})"
 
   @doc """
+  Complements the selector by checking that it does not have the given attribute with the
+  given value. Check `with_attr/3` for possible values.
+
+  ## Examples
+
+  ```
+  iex> without_attr("input", "type", "text")
+  ~s/input:not(["type"="text"])/
+
+  iex> without_attr("input", "class", {:contains_word, "hidden"})
+  ~s/input:not(["class"~="hidden"])/
+
+  iex> without_attr("input", "type", {:equal, "text"})
+  ~s/input:not(["type"="text"])/
+
+  iex> without_attr("div", "data-test", {:ends_with, "editor"})
+  ~s/div:not(["data-test"$="editor"])/
+
+  iex> without_attr("div", "data-test", {:starts_with, "editor"})
+  ~s/div:not(["data-test"^="editor"])/
+
+  iex> without_attr("main", "lang", {:subcode, "es"})
+  ~s/main:not(["lang"|="es"])/
+  ```
+  """
+  def without_attr(selector, attr, value), do: "#{selector}:not(#{with_attr("", attr, value)})"
+
+  @doc """
   Like `with_attr/2` but several attributes can be passed at once.
 
   Attributes can be passed as a map or keywords. In both cases, keys are the names

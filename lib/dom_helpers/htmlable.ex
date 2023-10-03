@@ -1,4 +1,7 @@
 defprotocol DomHelpers.Htmlable do
+  @moduledoc """
+  Implements conversion from anything to something Floki can parse.
+  """
   @fallback_to_any true
 
   @doc """
@@ -12,6 +15,7 @@ defimpl DomHelpers.Htmlable, for: Any do
 end
 
 defmodule DomHelpers.Utils do
+  @moduledoc false
   def module_compiled?(module) do
     function_exported?(module, :__info__, 1)
   end

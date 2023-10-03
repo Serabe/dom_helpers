@@ -37,6 +37,7 @@ defmodule DomHelpers.MixProject do
   defp deps do
     [
       {:floki, "~> 0.34.0"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]

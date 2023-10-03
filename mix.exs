@@ -7,7 +7,7 @@ defmodule DomHelpers.MixProject do
     [
       app: :dom_helpers,
       version: @version,
-      elixir: "~> 1.15",
+      elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),

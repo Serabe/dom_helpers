@@ -41,6 +41,37 @@ defmodule DomHelpers.Accessors do
     do: htmlable |> parse!() |> Floki.attribute(selector, attr_name)
 
   @doc """
+  Return a list of the classes of the current fragment.
+
+  ## Examples
+
+  ```
+  iex> classes(~s(<div class="some classes here">Hello</div>))
+  ~w(some classes here)
+
+  iex> classes(~s(<div class=" some   classes  here ">Hello</div>))
+  """
+  def classes(htmlable),
+    do: htmlable |> attribute("class") |> List.first("") |> String.split(" ", trim: true)
+
+  @doc """
+  Return a list with the list of classes of all the elements that satisfy the selector
+  in the given fragment.
+
+  ## Example
+
+  ```
+  iex> classes(~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>), ".odd")
+  [["odd"], ["odd"]]
+
+  iex> classes(~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>), "li")
+  [["odd"], ["even"], ["odd"]]
+  ```
+  """
+  def classes(htmlable, selector),
+    do: htmlable |> find(selector) |> Enum.map(&classes/1)
+
+  @doc """
   Finds all the nodes in the htmlable that satisfy the selector.
 
   ## Examples

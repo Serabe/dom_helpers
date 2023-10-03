@@ -2,6 +2,7 @@ defmodule DomHelpers.MixProject do
   use Mix.Project
 
   @version "0.2.0"
+  @source_url "https://github.com/Serabe/dom_helpers"
 
   def project do
     [
@@ -11,6 +12,7 @@ defmodule DomHelpers.MixProject do
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
+      docs: docs(),
       license: "MIT",
       package: package()
     ]
@@ -41,6 +43,15 @@ defmodule DomHelpers.MixProject do
       {:dialyxir, "~> 1.3", only: [:dev], runtime: false},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      extras: [{:"README.md", [title: "Overview"]}],
+      main: "readme",
+      source_url: @source_url,
+      source_ref: "v#{@version}"
     ]
   end
 

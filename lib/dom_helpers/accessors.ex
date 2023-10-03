@@ -17,6 +17,7 @@ defmodule DomHelpers.Accessors do
 
   iex> find(~s(<ul><li class="odd" data-test="first">First</li><li class="even" data-test="second">Second</li><li class="odd" data-test="third">Third</li></ul>), ".even") |> attribute("data-test")
   ~w(second)
+  ```
   """
   def attribute(htmlable, attr_name),
     do: htmlable |> parse!() |> Floki.attribute(attr_name)
@@ -50,6 +51,8 @@ defmodule DomHelpers.Accessors do
   ~w(some classes here)
 
   iex> classes(~s(<div class=" some   classes  here ">Hello</div>))
+  ~w(some classes here)
+  ```
   """
   def classes(htmlable),
     do: htmlable |> attribute("class") |> List.first("") |> String.split(" ", trim: true)

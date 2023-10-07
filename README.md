@@ -17,7 +17,7 @@ Add the following package to `mix.exs`:
 ```elixir
 def deps do
   [
-    {:dom_helpers, "~> 0.2.0", only: [:dev, :test]}
+    {:dom_helpers, "~> 0.2.3", only: [:dev, :test]}
   ]
 end
 ```

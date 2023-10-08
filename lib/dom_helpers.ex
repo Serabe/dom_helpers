@@ -10,6 +10,7 @@ defmodule DomHelpers do
   defmacro __using__(_opts) do
     quote do
       import DomHelpers.Accessors
+      import DomHelpers.Assertions
       import DomHelpers.Selectors
     end
   end

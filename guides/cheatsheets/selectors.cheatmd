@@ -1,0 +1,146 @@
+# Selectors Cheatsheet
+
+## Building selectors
+{: .col-2}
+
+### Adding class / classes to a selector
+
+#### Just one class
+
+```elixir
+with_class("span", "hidden")
+```
+
+#### Several classes
+
+```elixir
+with_classes("span", ~w(contents grid))
+```
+
+### Checking no class in a selector
+
+#### Just one class
+
+```elixir
+without_class("span", "hidden")
+```
+
+#### Several classes
+
+```elixir
+without_classes("span", ~w(contents grid))
+```
+
+## Id
+{: .col-1}
+ 
+### With id
+
+```elixir
+with_id("input", "form_field")
+```
+
+## Attributes
+{: .col-2}
+
+### Adding attributes to a selector
+
+#### One attribute
+
+```elixir
+with_attr("button", "disabled")
+with_attr("input", "type", "checkbox")
+```
+
+#### Several attributes
+
+```elixir
+with_attrs("input", type: "checkbox", name: "form[field]")
+```
+
+#### Checking an element does not have a selector.
+
+```elixir
+without_attr("button", "disabled")
+without_attr("button", "phx-click", "remove-item")
+```
+
+### Multiple selector options
+
+#### Checking just the existence of some attributes
+
+If the value given to one attribute is just `true`, it'll just check for the existence without checking for the value.
+
+```elixir
+with_attrs("button", type: "button", disabled: true)
+```
+
+#### Checking that an attribute is not there
+
+We can also check that an attribute is not there with `with_attrs`, just give `false` as value.
+
+```elixir
+with_attrs("button", type: "button", disabled: false)
+```
+
+### Use different matchers in attributes.
+
+`dom_helpers` support _"modifiers"_ in the form of `{modifier, value}` that
+can be used to change the matcher used in the selectors. [Documentation for these
+selectors can be found in MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors#syntax)
+
+#### Exact match
+
+Without a _"modifier"_, it just check for the exact value. There is also the `:equal`
+modifier.
+
+```elixir
+with_attr("input", "type", "checkbox")
+with_attr("input", "type", {:equal, "checkbox"})
+with_attrs("input", type: "checkbox")
+with_attrs("input", type: {:equal, "checkbox"})
+```
+
+#### Contains
+
+Checks if the value given to the selector is contained within the actual value
+in the element.
+
+```
+with_attr("input", "name", {:contains, "[certain_sub_field]"})
+with_attrs("input", name: {:contains, "[certain_sub_field]"})
+```
+
+#### Contains word
+
+With the `:contains_word` modifier, the `~=` matcher is used. This matcher
+considers the value a list of whitespace-separated words and just checks that
+one of the words is the given value to the selector.
+
+```elixir
+with_attr("span", "class", {:contains_word, "hidden"})
+with_attrs("span", class: {:contains_word, "hidden"})
+
+# Yeah, I know it would be best to use `with_class` for those examples.
+```
+
+#### Starts with / Ends with modifiers.
+
+There are also a `:starts_with` modifier for the `^=` matcher and `:ends_with` modifier for
+the `$=` matcher.
+
+```elixir
+with_attr("input", "name", {:starts_with, "form[field]"})
+with_attrs("input", name: {:starts_with, "form[field]"})
+with_attr("input", "name", {:ends_with, "[subfield][sub_subfield]"})
+with_attrs("input", name: {:ends_with, "[subfield][sub_subfield]"})
+```
+
+#### Subcode
+
+See MDN documentation for this one, as it is a bit tricky.
+
+```elixir
+with_attr("html", "lang", {:subcode, "es"})
+with_attrs("html", lang: {:subcode, "es"})
+```

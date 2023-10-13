@@ -1,0 +1,71 @@
+# Assertions Cheatsheet
+
+These ways of asserting in tests give you some advantages over the "standard" way:
+
+- Better errors. Most of these recipes rely on ExDoc to provide better errors when a
+  test fails (except for [`is_in?/2`](`DomHelpers.Assertions.is_in?/2`) which is just a
+  convenience function).
+- Forces you to be more specific about what you are testing. The usual way of using
+  `render(view) =~ expected_content` is prone to false green and, when failing, makes
+  it harder to know the intent of the test.
+
+## Elements existence
+{: .col-2}
+
+#### [`is_in?/2`](`DomHelpers.Assertions.is_in?/2`)
+
+Just a convenience function that reverses the arguments of `Phoenix.LiveViewTest.has_element?/2`.
+
+```elixir
+assert "input"
+  |> with_attrs(type: "checkbox", name: {:ends_with, "[type]"})
+  |> is_in?(view)
+```
+
+#### Check the number of elements matching a selector
+
+Other comparisons are possible, like greater than or less than.
+
+```elixir
+assert find_count(view, "[data-test=accordion]") == 2
+```
+
+## Elements attributes
+{: .col-2}
+
+#### Checking it has a class
+
+```elixir
+assert selector
+  |> with_class(expected_class)
+  |> is_in?(view)
+assert expected_class in (find_first(view, selector) |> classes() |> List.first())
+```
+
+#### Checking it has certain attribute
+
+```elixir
+assert selector
+  |> with_attr("aria-expanded", "true")
+  |> is_in?(view)
+assert [["true"]] ==
+  attribute(view, selector, "aria-expanded")
+```
+
+#### Checking the text of an element
+
+When fails, you get a nice diff between both text. Also, `=~` is prone to false greens.
+
+```elixir
+assert text(view, "[data-test=my-element]") == "My content"
+```
+
+#### Multiple checks at once
+
+No better errors here, except for text.
+
+```elixir
+selector = "button" |> with_class(".destroy") |> with_attrs(disabled: true, type: "submit")
+
+assert text(view, selector) == "Submit form"
+```

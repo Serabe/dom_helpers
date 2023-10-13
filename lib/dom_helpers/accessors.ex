@@ -48,14 +48,17 @@ defmodule DomHelpers.Accessors do
 
   ```
   iex> classes(~s(<div class="some classes here">Hello</div>))
-  ~w(some classes here)
+  [~w(some classes here)]
 
   iex> classes(~s(<div class=" some   classes  here ">Hello</div>))
-  ~w(some classes here)
+  [~w(some classes here)]
+
+  iex> classes(~s(<li class="odd first">1</li><li class="even second">2</li>))
+  [~w(odd first), ~w(even second)]
   ```
   """
   def classes(htmlable),
-    do: htmlable |> attribute("class") |> List.first("") |> String.split(" ", trim: true)
+    do: htmlable |> attribute("class") |> Enum.map(&String.split(&1, " ", trim: true))
 
   @doc """
   Return a list with the list of classes of all the elements that satisfy the selector
@@ -69,10 +72,13 @@ defmodule DomHelpers.Accessors do
 
   iex> classes(~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>), "li")
   [["odd"], ["even"], ["odd"]]
+
+  iex> classes(~s[<div class="one two three">Content</div><div class="four five">Other</div>], "div")
+  [["one", "two", "three"], ["four", "five"]]
   ```
   """
   def classes(htmlable, selector),
-    do: htmlable |> find(selector) |> Enum.map(&classes/1)
+    do: htmlable |> find(selector) |> Enum.flat_map(&classes/1)
 
   @doc """
   Finds all the nodes in the htmlable that satisfy the selector.

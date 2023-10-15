@@ -5,7 +5,7 @@ defmodule DomHelpers.Assertions do
   [selectors](`DomHelpers.Selectors`) and [accessors](`DomHelpers.Accessors`).
   """
 
-  import DomHelpers.Accessors
+  alias DomHelpers.Accessors
 
   @doc """
   Checks if the given selector is found at least once
@@ -27,6 +27,6 @@ defmodule DomHelpers.Assertions do
   ```
   """
   def is_in?(selector, htmlable) do
-    find_count(htmlable, selector) > 0
+    Accessors.find_count(htmlable, selector) > 0
   end
 end

@@ -49,7 +49,13 @@ defmodule DomHelpers.MixProject do
 
   defp docs do
     [
-      extras: [{:"README.md", [title: "Overview"]}],
+      extras: [
+        {:"README.md", [title: "Overview"]},
+        {:"guides/cheatsheets/accessors.cheatmd", [title: "Accessors"]},
+        {:"guides/cheatsheets/assertions.cheatmd", [title: "Assertions"]},
+        {:"guides/cheatsheets/selectors.cheatmd", [title: "Selectors"]}
+      ],
+      groups_for_extras: [Cheatsheets: ~r/cheatsheets\/.?/],
       main: "readme",
       source_url: @source_url,
       source_ref: "v#{@version}"

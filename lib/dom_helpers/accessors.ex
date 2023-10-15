@@ -42,20 +42,43 @@ defmodule DomHelpers.Accessors do
     do: htmlable |> parse!() |> Floki.attribute(selector, attr_name)
 
   @doc """
+  Convenience method for piping when building a selector. Behaves like `attribute/3` but
+  first argument is the selector and the second one is the htmlable.
+
+  ## Examples
+
+  ```
+  iex> attribute_in("li", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>), "class")
+  ~w(odd even odd)
+
+  iex> attribute_in("li", ~s(<ul><li class="odd" data-test="first">First</li><li class="even" data-test="second">Second</li><li class="odd" data-test="third">Third</li></ul>), "data-test")
+  ~w(first second third)
+
+  iex> attribute_in(".even", ~s(<ul><li class="odd" data-test="first">First</li><li class="even" data-test="second">Second</li><li class="odd" data-test="third">Third</li></ul>), "data-test")
+  ~w(second)
+  ```
+  """
+  def attribute_in(selector, htmlable, attr_name),
+    do: attribute(htmlable, selector, attr_name)
+
+  @doc """
   Return a list of the classes of the current fragment.
 
   ## Examples
 
   ```
   iex> classes(~s(<div class="some classes here">Hello</div>))
-  ~w(some classes here)
+  [~w(some classes here)]
 
   iex> classes(~s(<div class=" some   classes  here ">Hello</div>))
-  ~w(some classes here)
+  [~w(some classes here)]
+
+  iex> classes(~s(<li class="odd first">1</li><li class="even second">2</li>))
+  [~w(odd first), ~w(even second)]
   ```
   """
   def classes(htmlable),
-    do: htmlable |> attribute("class") |> List.first("") |> String.split(" ", trim: true)
+    do: htmlable |> attribute("class") |> Enum.map(&String.split(&1, " ", trim: true))
 
   @doc """
   Return a list with the list of classes of all the elements that satisfy the selector
@@ -69,10 +92,32 @@ defmodule DomHelpers.Accessors do
 
   iex> classes(~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>), "li")
   [["odd"], ["even"], ["odd"]]
+
+  iex> classes(~s[<div class="one two three">Content</div><div class="four five">Other</div>], "div")
+  [["one", "two", "three"], ["four", "five"]]
   ```
   """
   def classes(htmlable, selector),
-    do: htmlable |> find(selector) |> Enum.map(&classes/1)
+    do: htmlable |> find(selector) |> Enum.flat_map(&classes/1)
+
+  @doc """
+  Convenience method for piping when building a selector. Behaves like `classes/2` but
+  first argument is the selector.
+
+  ## Example
+
+  ```
+  iex> classes_in(".odd", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  [["odd"], ["odd"]]
+
+  iex> classes_in("li", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  [["odd"], ["even"], ["odd"]]
+
+  iex> classes_in("div", ~s[<div class="one two three">Content</div><div class="four five">Other</div>])
+  [["one", "two", "three"], ["four", "five"]]
+  ```
+  """
+  def classes_in(selector, htmlable), do: classes(htmlable, selector)
 
   @doc """
   Finds all the nodes in the htmlable that satisfy the selector.
@@ -96,6 +141,28 @@ defmodule DomHelpers.Accessors do
   def find(htmlable, selector), do: htmlable |> parse!() |> Floki.find(selector)
 
   @doc """
+  Convenience method for piping when building a selector. Behaves like `find/2` but
+  first argument is the selector.
+
+  ## Examples
+
+  ```
+  iex> find_in(".odd", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  [{"li", [{"class", "odd"}], ["First"]}, {"li", [{"class", "odd"}], ["Third"]}]
+
+  iex> find_in(".even", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  [{"li", [{"class", "even"}], ["Second"]}]
+
+  iex> find(~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>), ".none")
+  []
+
+  iex> find_in("li", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  [{"li", [{"class", "odd"}], ["First"]}, {"li", [{"class", "even"}], ["Second"]}, {"li", [{"class", "odd"}], ["Third"]}]
+  ```
+  """
+  def find_in(selector, htmlable), do: find(htmlable, selector)
+
+  @doc """
   Returns the number of elements that satisfy the given selector.
 
   ## Examples
@@ -117,6 +184,28 @@ defmodule DomHelpers.Accessors do
   def find_count(htmlable, selector), do: htmlable |> find(selector) |> length()
 
   @doc """
+  Convenience method for piping when building a selector. Behaves like `find_count/2` but
+  first argument is the selector.
+
+  ## Examples
+
+  ```
+  iex> find_count_in(".odd", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  2
+
+  iex> find_count_in(".even", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  1
+
+  iex> find_count_in(".none", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  0
+
+  iex> find_count_in("li", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  3
+  ```
+  """
+  def find_count_in(selector, htmlable), do: find_count(htmlable, selector)
+
+  @doc """
   Like `find/2` but gets the first instance.
 
   ## Examples
@@ -136,6 +225,28 @@ defmodule DomHelpers.Accessors do
   ```
   """
   def find_first(htmlable, selector), do: htmlable |> find(selector) |> List.first()
+
+  @doc """
+  Convenience method for piping when building a selector. Behaves like `find_first/2` but
+  first argument is the selector.
+
+  ## Examples
+
+  ```
+  iex> find_first_in(".odd", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  {"li", [{"class", "odd"}], ["First"]}
+
+  iex> find_first_in(".even", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  {"li", [{"class", "even"}], ["Second"]}
+
+  iex> find_first_in(".none", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  nil
+
+  iex> find_first_in("li", ~s(<ul><li class="odd">First</li><li class="even">Second</li><li class="odd">Third</li></ul>))
+  {"li", [{"class", "odd"}], ["First"]}
+  ```
+  """
+  def find_first_in(selector, htmlable), do: find_first(htmlable, selector)
 
   @doc """
   Returns the whole text inside the html fragment passed in. Spaces are normalised (meaning that if there are multiple
@@ -178,6 +289,29 @@ defmodule DomHelpers.Accessors do
       |> Floki.text(Keyword.get(options, :text, []))
       |> String.replace(~r/\s+/, " ")
       |> String.trim()
+
+  @doc """
+  Convenience method for piping when building a selector. Behaves like `text/3` but
+  first argument is the selector. Selector is not optional in this function.
+
+  ## Examples
+
+  ```
+  iex> text_in(".odd", ~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>))
+  "First Third"
+
+  iex> text_in(".even", ~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>))
+  "Second"
+
+  iex> text_in(".none", ~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>))
+  ""
+
+  iex> text_in("li", ~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>))
+  "First Second Third"
+  ```
+  """
+  def text_in(selector, htmlable, options \\ []),
+    do: text(htmlable, selector, options)
 
   # If it is already parsed.
   defp parse!(tree) when is_list(tree) or is_tuple(tree), do: tree

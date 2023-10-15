@@ -1,0 +1,146 @@
+# Accessors Cheatsheet
+
+Accessors let you access certains parts of the element you have selected previously.
+As the given htmlable can contain multiple nodes, these functions return lists.
+
+All function that can be filtered using a selector, they are done by using a selector
+as second argument. In that case, there is a version of the same function ended with
+`_in` where the first and second arguments are switched. These are just convenience
+function in case you want to pipe when building a complex selector.
+
+## Selecting nodes
+{: .col-2}
+
+#### All matching nodes
+
+```elixir
+find(view, "p")
+find_in("p", view)
+# Returns all paragraphs.
+```
+
+#### First matching node
+
+```elixir
+find_first(view, "div.contents")
+find_first_in("div.contents", view)
+# Returns the first div with contents class
+```
+
+#### Count the matching nodes
+
+Just a convinience function.
+
+```elixir
+find_count(view, "p")
+find_count_in("p", view)
+# Counts the number of paragraphs
+
+find_count(view, "nav ul li")
+find_count_in("nav ul li", view)
+# Counts the number of elements in the navigation list
+```
+
+## Selecting attributes
+{: .col-2}
+
+### Classes
+
+Classes are quite common in HTML. Specially useful when checking for classes like
+`hidden` in Tailwind, that checks if an element should be hidden or not. Class
+attributes will be split in words before being returned.
+
+#### One element
+
+Look out for the nested list!
+
+```elixir
+classes(~s[<div class="one two three">Content</div>])
+# [["one", "two", "three"]]
+```
+
+#### Several elements
+
+```elixir
+classes(~s[<div class="one two three">Content</div><div class="four five">Other</div>])
+# [["one", "two", "three"], ["four", "five"]]
+```
+
+#### Using selectors
+`classes/2` let's you pass a selector as second argument. This is convenient so you don't
+to pipe `find` just for this.
+
+```elixir
+classes(~s[<div class="one two three">Content</div><div class="first">Other</div>], ".one")
+classes_in(".one", ~s[<div class="one two three">Content</div><div class="first">Other</div>])
+# [["one", "two", "three"]]
+classes(~s[<div class="one two three">Content</div><div class="four five">Other</div>], "div")
+classes_in("div", ~s[<div class="one two three">Content</div><div class="four five">Other</div>])
+# [["one", "two", "three"], ["four", "five"]]
+```
+
+### Other attributes
+
+Other attributes can easily be accessed too. Unlike classes, these values are returned
+as strings, unparsed in any way.
+
+#### One element
+
+```elixir
+attribute(~s[<li data-index="0">1</li>], "data-index")
+# ["0"]
+```
+
+#### Several elements
+
+```elixir
+attribute(~s[<li data-index="0">1</li><li data-index="1">2</li>], "data-index")
+# ["0", "1"]
+```
+
+#### Using selectors
+
+`attribute/3` let's you pass a selector as second argument. This is convenient so you don't
+to pipe `find` just for this.
+
+
+```elixir
+attribute(~s[<div class="one" data-index="0">Content</div><div class="first" data-index="1">Other</div>], ".one", "data-index")
+attribute_in(".one", ~s[<div class="one" data-index="0">Content</div><div class="first" data-index="1">Other</div>], "data-index")
+# ["0"]
+attribute_in("div", ~s[<div class="one two three">Content</div><div class="four five">Other</div>], "class")
+# ["one two three", "four five"]
+```
+
+### Text
+
+#### Several elements, combined
+
+Text would return just one string for all elements by default.
+
+```elixir
+text(~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>), ".odd")
+text_in(".odd", ~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>))
+# "First Third"
+
+text(~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>), ".even")
+text_in(".even", ~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>))
+# "Second"
+
+text(~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>), ".none")
+text_in(".none", ~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>))
+# ""
+
+text(~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>), "li")
+text_in("li", ~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>))
+# "First Second Third"
+```
+
+#### Several elements, list
+
+Combine `Enum.map/2` with `Nobs.Accessors.text/3` to create a list.
+
+```elixir
+find(~s(<ul><li class="odd"> First </li> <li class="even"> Second </li> <li class="odd"> Third </li></ul>), "li") |> Enum.map(&text/1)
+# ~w(First Second Third)
+```
